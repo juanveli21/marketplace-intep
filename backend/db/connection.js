@@ -1,10 +1,11 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'root123',
-    database : 'marketplace_db',
+    host    : process.env.MYSQLHOST     || 'localhost',
+    user    : process.env.MYSQLUSER     || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'marketplace_db',
+    port    : process.env.MYSQLPORT     || 3306,
     waitForConnections: true,
     connectionLimit   : 10,
     queueLimit        : 0
@@ -13,18 +14,9 @@ const pool = mysql.createPool({
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Error conectando a MySQL:', err.message);
-
-        if (err.code === 'ECONNREFUSED')
-            console.error('→ MySQL no está corriendo');
-        if (err.code === 'ER_ACCESS_DENIED_ERROR')
-            console.error('→ Usuario o contraseña incorrectos');
-        if (err.code === 'ER_BAD_DB_ERROR')
-            console.error('→ La base de datos no existe');
-
         return;
     }
-
-    console.log('✅ MySQL conectado');
+    console.log('✅ Conexión exitosa a MySQL (pool activo)');
     connection.release();
 });
 
