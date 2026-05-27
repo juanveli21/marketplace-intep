@@ -92,6 +92,7 @@ router.post('/agregar', (req, res, next) => {
             console.error('Error en upload Cloudinary:', err.message, err.stack);
             return res.status(500).json({ error: 'Error al subir imagen: ' + err.message });
         }
+        console.log('req.file:', JSON.stringify(req.file));
         next();
     });
 }, async (req, res) => {
@@ -106,6 +107,7 @@ router.post('/agregar', (req, res, next) => {
     }
 
     const imagen = req.file ? req.file.path : 'default.jpg';
+    console.log('imagen a guardar:', imagen);
 
     try {
         const sql = `
@@ -142,6 +144,7 @@ router.put('/editar/:id', (req, res, next) => {
             console.error('Error en upload Cloudinary:', err.message, err.stack);
             return res.status(500).json({ error: 'Error al subir imagen: ' + err.message });
         }
+        console.log('req.file editar:', JSON.stringify(req.file));
         next();
     });
 }, async (req, res) => {
