@@ -91,7 +91,6 @@
             padding: 7rem 2rem 5rem;
         }
 
-        /* Puntos de fondo decorativos */
         .hero::before {
             content: '';
             position: absolute; inset: 0;
@@ -222,9 +221,7 @@
             animation: fadeUp 0.6s 0.4s ease both;
         }
 
-        .hero-stat {
-            text-align: center;
-        }
+        .hero-stat { text-align: center; }
 
         .hero-stat strong {
             display: block;
@@ -280,7 +277,6 @@
             margin-top: 0.25rem;
         }
 
-        /* Filtros de categoría */
         .filtros {
             display: flex; gap: 0.5rem; flex-wrap: wrap;
             margin-bottom: 2rem;
@@ -305,7 +301,6 @@
             border-color: var(--navy);
         }
 
-        /* Grid de productos */
         .productos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -344,9 +339,7 @@
             font-size: 2.5rem;
         }
 
-        .producto-body {
-            padding: 1.25rem;
-        }
+        .producto-body { padding: 1.25rem; }
 
         .producto-categoria {
             font-size: 0.72rem;
@@ -408,7 +401,6 @@
 
         .btn-carrito:hover { background: var(--accent); }
 
-        /* Estado vacío / cargando */
         .estado-vacio {
             grid-column: 1 / -1;
             text-align: center;
@@ -419,7 +411,6 @@
         .estado-vacio .icono { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
         .estado-vacio p { font-size: 0.95rem; }
 
-        /* ── FOOTER ─────────────────────────────────── */
         footer {
             background: var(--navy);
             color: rgba(255,255,255,0.4);
@@ -432,7 +423,6 @@
 
         footer strong { color: rgba(255,255,255,0.7); font-weight: 400; }
 
-        /* ── TOAST ──────────────────────────────────── */
         .toast {
             position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
             background: var(--navy2);
@@ -450,7 +440,6 @@
 
         .toast.show { transform: translateY(0); opacity: 1; }
 
-        /* ── RESPONSIVE ─────────────────────────────── */
         @media (max-width: 640px) {
             nav { padding: 0 1.25rem; }
             .nav-links a:not(.btn-nav) { display: none; }
@@ -461,7 +450,6 @@
 </head>
 <body>
 
-<!-- ── NAVEGACIÓN ──────────────────────────────────── -->
 <nav>
     <a href="/" class="nav-logo">INTEP <span>Market</span></a>
     <div class="nav-links" id="nav-links">
@@ -471,7 +459,6 @@
     </div>
 </nav>
 
-<!-- ── HERO ───────────────────────────────────────── -->
 <section class="hero">
     <div class="hero-grid"></div>
     <div class="hero-content">
@@ -504,8 +491,6 @@
     </div>
 </section>
 
-
-<!-- ── EMPRESAS DESTACADAS ──────────────────────────── -->
 <section id="empresas" style="padding:4rem 2.5rem;background:var(--white);border-bottom:1px solid #f1f5f9">
     <div style="max-width:1100px;margin:0 auto">
         <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem">
@@ -520,7 +505,6 @@
     </div>
 </section>
 
-<!-- ── CATÁLOGO ────────────────────────────────────── -->
 <section class="catalog-section" id="catalogo">
     <div class="section-header">
         <div>
@@ -528,13 +512,9 @@
             <p>Lo que la comunidad INTEP tiene para ofrecerte</p>
         </div>
     </div>
-
-    <!-- Filtros de categoría (se generan dinámicamente) -->
     <div class="filtros" id="filtros">
         <button class="filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
     </div>
-
-    <!-- Grid de productos -->
     <div class="productos-grid" id="lista-productos">
         <div class="estado-vacio">
             <div class="icono">◌</div>
@@ -543,29 +523,27 @@
     </div>
 </section>
 
-<!-- ── FOOTER ──────────────────────────────────────── -->
 <footer>
     © 2026 <strong>INTEP</strong> · Institución de Educación Superior · Roldanillo, Valle del Cauca
 </footer>
 
-<!-- Toast de notificación -->
 <div class="toast" id="toast"></div>
 
 <script>
-
     let todosLosProductos = [];
 
-    // ── Cargar productos desde el backend ─────────────
+    function imgUrl(url) {
+        return url && url.startsWith('http') ? url : '/uploads/' + url;
+    }
+
     async function cargarProductos() {
         try {
             const res = await fetch('/productos/todos', { credentials: 'include' });
             const productos = await res.json();
             todosLosProductos = productos;
 
-            // Actualizar stat del hero
             document.getElementById('stat-productos').textContent = productos.length;
 
-            // Generar filtros de categoría únicos
             const categorias = [...new Set(productos.map(p => p.categoria_nombre).filter(Boolean))];
             const filtrosEl = document.getElementById('filtros');
             categorias.forEach(cat => {
@@ -587,19 +565,15 @@
         }
     }
 
-    // ── Filtrar por categoría ──────────────────────────
     function filtrar(categoria, btnEl) {
         document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
         btnEl.classList.add('active');
-
         const filtrados = categoria === 'todos'
             ? todosLosProductos
             : todosLosProductos.filter(p => p.categoria_nombre === categoria);
-
         renderProductos(filtrados);
     }
 
-    // ── Renderizar tarjetas ────────────────────────────
     function renderProductos(productos) {
         const contenedor = document.getElementById('lista-productos');
 
@@ -615,7 +589,7 @@
         contenedor.innerHTML = productos.map(p => `
             <div class="producto-card">
                 ${p.imagen && p.imagen !== 'default.jpg'
-                    ? `<img src="/uploads/${p.imagen}" alt="${p.nombre}" class="producto-img" loading="lazy">`
+                    ? `<img src="${imgUrl(p.imagen)}" alt="${p.nombre}" class="producto-img" loading="lazy">`
                     : `<div class="producto-img-placeholder">🛍</div>`
                 }
                 <div class="producto-body">
@@ -637,16 +611,15 @@
         `).join('');
     }
 
-    // ── Agregar al carrito ─────────────────────────────
     async function agregarAlCarrito(productoId, nombre) {
         try {
-            const res = await fetch('/carrito/agregar', { credentials: 'include', 
+            const res = await fetch('/carrito/agregar', {
+                credentials: 'include',
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ producto_id: productoId, cantidad: 1 })
             });
             const data = await res.json();
-
             if (res.ok) {
                 mostrarToast(`✓ "${nombre}" agregado al carrito`);
             } else if (res.status === 401) {
@@ -660,7 +633,6 @@
         }
     }
 
-    // ── Toast de notificación ──────────────────────────
     function mostrarToast(msg, esError = false) {
         const t = document.getElementById('toast');
         t.textContent = msg;
@@ -669,19 +641,22 @@
         setTimeout(() => t.classList.remove('show'), 3000);
     }
 
-
     async function cargarEmpresasDestacadas() {
         try {
             const res = await fetch('/empresas/destacadas', { credentials: 'include' });
             const empresas = await res.json();
             const grid = document.getElementById('empresas-grid');
             if (!grid) return;
-            if (!empresas.length) { grid.style.display = 'none'; document.getElementById('empresas').style.display = 'none'; return; }
+            if (!empresas.length) {
+                grid.style.display = 'none';
+                document.getElementById('empresas').style.display = 'none';
+                return;
+            }
             grid.innerHTML = empresas.map(e => `
                 <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:14px;padding:1.5rem;transition:box-shadow 0.2s;cursor:pointer" onmouseover="this.style.boxShadow='0 8px 24px rgba(0,0,0,0.08)'" onmouseout="this.style.boxShadow='none'">
                     <div style="display:flex;align-items:center;gap:0.85rem;margin-bottom:0.85rem">
                         ${e.logo
-                            ? `<img src="/uploads/${e.logo}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid #e2e8f0" alt="${e.nombre}">`
+                            ? `<img src="${imgUrl(e.logo)}" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid #e2e8f0" alt="${e.nombre}">`
                             : `<div style="width:44px;height:44px;border-radius:10px;background:#0a1628;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;color:#60a5fa">${e.nombre.charAt(0)}</div>`
                         }
                         <div>
@@ -699,11 +674,6 @@
         } catch { }
     }
 
-    // Iniciar
-    cargarProductos();
-    cargarEmpresasDestacadas();
-    verificarSesionNav();
-
     async function verificarSesionNav() {
         try {
             const res  = await fetch('/auth/sesion', { credentials: 'include' });
@@ -717,8 +687,12 @@
                     <a href="#catalogo">Catálogo</a>
                     <a href="${dashboard}" class="btn-nav">Mi cuenta (${data.nombre})</a>`;
             }
-        } catch { /* sin sesión, mostrar nav normal */ }
+        } catch { }
     }
+
+    cargarProductos();
+    cargarEmpresasDestacadas();
+    verificarSesionNav();
 </script>
 </body>
 </html>
