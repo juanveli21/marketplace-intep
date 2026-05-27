@@ -27,7 +27,7 @@ router.get('/todos', async (req, res) => {
         const [productos] = await db.query(sql);
         res.json(productos);
     } catch (err) {
-        console.error('Error al obtener productos:', err);
+        console.error('Error al obtener productos:', err.message, err.stack);
         res.status(500).json({ error: 'Error al obtener productos' });
     }
 });
@@ -53,7 +53,7 @@ router.get('/mis-productos', async (req, res) => {
         const [productos] = await db.query(sql, [req.session.empresaId]);
         res.json(productos);
     } catch (err) {
-        console.error('Error al obtener mis productos:', err);
+        console.error('Error al obtener mis productos:', err.message, err.stack);
         res.status(500).json({ error: 'Error al obtener tus productos' });
     }
 });
@@ -78,7 +78,7 @@ router.get('/:id', async (req, res) => {
         }
         res.json(rows[0]);
     } catch (err) {
-        console.error('Error al obtener producto:', err);
+        console.error('Error al obtener producto:', err.message, err.stack);
         res.status(500).json({ error: 'Error al obtener el producto' });
     }
 });
@@ -86,7 +86,15 @@ router.get('/:id', async (req, res) => {
 // ============================================================
 // POST /productos/agregar
 // ============================================================
-router.post('/agregar', upload.single('imagen'), async (req, res) => {
+router.post('/agregar', (req, res, next) => {
+    upload.single('imagen')(req, res, (err) => {
+        if (err) {
+            console.error('Error en upload Cloudinary:', err.message, err.stack);
+            return res.status(500).json({ error: 'Error al subir imagen: ' + err.message });
+        }
+        next();
+    });
+}, async (req, res) => {
     if (!req.session.empresaId) {
         return res.status(401).json({ error: 'Debes iniciar sesión como empresa' });
     }
@@ -97,7 +105,6 @@ router.post('/agregar', upload.single('imagen'), async (req, res) => {
         return res.status(400).json({ error: 'Nombre, precio y stock son obligatorios' });
     }
 
-    // URL de Cloudinary o imagen por defecto
     const imagen = req.file ? req.file.path : 'default.jpg';
 
     try {
@@ -121,15 +128,23 @@ router.post('/agregar', upload.single('imagen'), async (req, res) => {
             productoId: result.insertId
         });
     } catch (err) {
-        console.error('Error al agregar producto:', err);
-        res.status(500).json({ error: 'Error al guardar el producto' });
+        console.error('Error al agregar producto:', err.message, err.stack);
+        res.status(500).json({ error: 'Error al guardar el producto: ' + err.message });
     }
 });
 
 // ============================================================
 // PUT /productos/editar/:id
 // ============================================================
-router.put('/editar/:id', upload.single('imagen'), async (req, res) => {
+router.put('/editar/:id', (req, res, next) => {
+    upload.single('imagen')(req, res, (err) => {
+        if (err) {
+            console.error('Error en upload Cloudinary:', err.message, err.stack);
+            return res.status(500).json({ error: 'Error al subir imagen: ' + err.message });
+        }
+        next();
+    });
+}, async (req, res) => {
     if (!req.session.empresaId) {
         return res.status(401).json({ error: 'Debes iniciar sesión como empresa' });
     }
@@ -172,8 +187,8 @@ router.put('/editar/:id', upload.single('imagen'), async (req, res) => {
 
         res.json({ message: 'Producto actualizado exitosamente' });
     } catch (err) {
-        console.error('Error al editar producto:', err);
-        res.status(500).json({ error: 'Error al actualizar el producto' });
+        console.error('Error al editar producto:', err.message, err.stack);
+        res.status(500).json({ error: 'Error al actualizar el producto: ' + err.message });
     }
 });
 
@@ -204,7 +219,7 @@ router.delete('/eliminar/:id', async (req, res) => {
 
         res.json({ message: 'Producto eliminado exitosamente' });
     } catch (err) {
-        console.error('Error al eliminar producto:', err);
+        console.error('Error al eliminar producto:', err.message, err.stack);
         res.status(500).json({ error: 'Error al eliminar el producto' });
     }
 });
