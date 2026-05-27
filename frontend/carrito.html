@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Carrito — INTEP Market</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #0a1628;
+            --navy2:  #112240;
+            --accent: #3b82f6;
+            --white:  #ffffff;
+            --gray50: #f8fafc;
+            --gray100:#f1f5f9;
+            --gray300:#cbd5e1;
+            --gray400:#94a3b8;
+            --gray500:#64748b;
+            --gray700:#334155;
+            --red:    #ef4444;
+            --green:  #10b981;
+            --radius: 14px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--gray50);
+            color: var(--gray700);
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2.5rem; height: 64px;
+            background: rgba(10,22,40,0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem; font-weight: 600;
+            color: var(--white); text-decoration: none;
+        }
+
+        .nav-logo span { color: #60a5fa; }
+
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            font-size: 0.875rem; padding: 0.45rem 0.9rem;
+            border-radius: 8px; transition: all 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+
+        .nav-links a.active {
+            color: var(--white); background: rgba(255,255,255,0.1);
+        }
+
+        /* ── LAYOUT PRINCIPAL ── */
+        .page-header {
+            background: var(--navy);
+            padding: 2.5rem 2.5rem 2rem;
+            color: var(--white);
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem; font-weight: 500;
+        }
+
+        .page-header p {
+            color: rgba(255,255,255,0.45);
+            font-size: 0.875rem; font-weight: 300;
+            margin-top: 0.3rem;
+        }
+
+        .main {
+            max-width: 1100px; margin: 0 auto;
+            padding: 2.5rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* ── LISTA DE ÍTEMS ── */
+        .carrito-lista { display: flex; flex-direction: column; gap: 1rem; }
+
+        .carrito-item {
+            background: var(--white);
+            border: 1px solid var(--gray100);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 1.25rem;
+            align-items: center;
+            transition: box-shadow 0.2s;
+        }
+
+        .carrito-item:hover { box-shadow: var(--shadow); }
+
+        .item-img {
+            width: 80px; height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: var(--gray100);
+        }
+
+        .item-img-placeholder {
+            width: 80px; height: 80px;
+            border-radius: 10px;
+            background: var(--gray100);
+            display: flex; align-items: center;
+            justify-content: center;
+            font-size: 1.5rem; color: var(--gray300);
+        }
+
+        .item-info { min-width: 0; }
+
+        .item-empresa {
+            font-size: 0.72rem; font-weight: 500;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--accent); margin-bottom: 0.25rem;
+        }
+
+        .item-nombre {
+            font-size: 0.95rem; font-weight: 500;
+            color: var(--navy); margin-bottom: 0.2rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .item-precio-unit {
+            font-size: 0.8rem; color: var(--gray500);
+        }
+
+        .item-acciones {
+            display: flex; flex-direction: column;
+            align-items: flex-end; gap: 0.75rem;
+        }
+
+        /* Selector de cantidad */
+        .cantidad-control {
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .qty-btn {
+            width: 28px; height: 28px;
+            border: 1.5px solid var(--gray300);
+            border-radius: 6px; background: var(--white);
+            font-size: 1rem; color: var(--gray700);
+            cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+            transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+        }
+
+        .qty-btn:hover { border-color: var(--navy); color: var(--navy); }
+
+        .qty-num {
+            width: 36px; text-align: center;
+            font-size: 0.9rem; font-weight: 500;
+            color: var(--navy);
+        }
+
+        .item-subtotal {
+            font-size: 1rem; font-weight: 500;
+            color: var(--navy);
+        }
+
+        .btn-eliminar {
+            background: none; border: none;
+            font-size: 0.78rem; color: var(--gray400);
+            cursor: pointer; padding: 0.2rem 0;
+            font-family: 'DM Sans', sans-serif;
+            transition: color 0.15s;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+
+        .btn-eliminar:hover { color: var(--red); }
+
+        /* Estado vacío */
+        .carrito-vacio {
+            background: var(--white);
+            border: 1px solid var(--gray100);
+            border-radius: var(--radius);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .carrito-vacio .icono { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+
+        .carrito-vacio h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem; font-weight: 500;
+            color: var(--navy); margin-bottom: 0.5rem;
+        }
+
+        .carrito-vacio p {
+            font-size: 0.875rem; color: var(--gray500);
+            font-weight: 300; margin-bottom: 1.5rem;
+        }
+
+        .btn-ir-catalogo {
+            display: inline-block;
+            background: var(--navy); color: var(--white);
+            text-decoration: none; padding: 0.75rem 1.5rem;
+            border-radius: 10px; font-size: 0.875rem;
+            font-weight: 500; transition: background 0.2s;
+        }
+
+        .btn-ir-catalogo:hover { background: var(--accent); }
+
+        /* ── RESUMEN DE COMPRA ── */
+        .resumen {
+            background: var(--white);
+            border: 1px solid var(--gray100);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            position: sticky;
+            top: 84px;
+        }
+
+        .resumen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem; font-weight: 500;
+            color: var(--navy); margin-bottom: 1.25rem;
+        }
+
+        .resumen-fila {
+            display: flex; justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem; color: var(--gray500);
+            padding: 0.5rem 0;
+        }
+
+        .resumen-fila.total {
+            border-top: 1.5px solid var(--gray100);
+            margin-top: 0.75rem; padding-top: 1rem;
+            font-size: 1.05rem; font-weight: 500;
+            color: var(--navy);
+        }
+
+        .resumen-fila.total span:last-child {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+        }
+
+        .btn-pagar {
+            width: 100%; margin-top: 1.25rem;
+            padding: 0.9rem;
+            background: var(--green); color: var(--white);
+            border: none; border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center;
+            justify-content: center; gap: 0.5rem;
+        }
+
+        .btn-pagar:hover { background: #059669; transform: translateY(-1px); }
+        .btn-pagar:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-vaciar {
+            width: 100%; margin-top: 0.75rem;
+            padding: 0.65rem;
+            background: none; color: var(--gray400);
+            border: 1px solid var(--gray300); border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-vaciar:hover { color: var(--red); border-color: var(--red); }
+
+        .resumen-nota {
+            margin-top: 1rem;
+            font-size: 0.75rem; color: var(--gray400);
+            text-align: center; font-weight: 300; line-height: 1.5;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+            background: var(--navy2); color: var(--white);
+            padding: 0.85rem 1.4rem; border-radius: 10px;
+            font-size: 0.875rem;
+            border-left: 3px solid var(--green);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateY(100px); opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            pointer-events: none;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            nav { padding: 0 1.25rem; }
+            .page-header { padding: 2rem 1.25rem 1.5rem; }
+            .main { grid-template-columns: 1fr; padding: 1.5rem 1.25rem; }
+            .resumen { position: static; }
+            .carrito-item { grid-template-columns: 70px 1fr; }
+            .item-acciones { flex-direction: row; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="nav-logo">INTEP <span>Market</span></a>
+    <div class="nav-links">
+        <a href="/">Catálogo</a>
+        <a href="carrito.html" class="active">🛒 Mi carrito</a>
+        <a href="mis-pedidos.html">Mis pedidos</a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <h1>Mi carrito</h1>
+    <p id="header-sub">Cargando...</p>
+</div>
+
+<div class="main">
+    <!-- Lista de ítems -->
+    <div class="carrito-lista" id="carrito-lista">
+        <div style="text-align:center; padding:3rem; color:var(--gray400)">Cargando carrito...</div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="resumen">
+        <h2>Resumen</h2>
+        <div class="resumen-fila">
+            <span>Productos</span>
+            <span id="res-cantidad">—</span>
+        </div>
+        <div class="resumen-fila">
+            <span>Envío</span>
+            <span style="color:var(--green); font-weight:500">Gratis</span>
+        </div>
+        <div class="resumen-fila total">
+            <span>Total</span>
+            <span id="res-total">—</span>
+        </div>
+        <button class="btn-pagar" id="btn-pagar" disabled onclick="realizarPedido()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+            Realizar pedido
+        </button>
+        <button class="btn-vaciar" onclick="vaciarCarrito()">Vaciar carrito</button>
+        <p class="resumen-nota">Al confirmar el pedido, las empresas serán notificadas de tu solicitud.</p>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+    let carritoData = [];
+
+    // ── Cargar carrito ──────────────────────────────
+    async function cargarCarrito() {
+        try {
+            const res  = await fetch('/carrito', { credentials: 'include' });
+            if (res.status === 401) {
+                window.location.href = '/login.html';
+                return;
+            }
+            const data = await res.json();
+            carritoData = data.items;
+            renderCarrito(data);
+        } catch (err) {
+            console.error('Error:', err);
+            mostrarToast('Error al cargar el carrito', true);
+        }
+    }
+
+    // ── Renderizar ítems ────────────────────────────
+    function renderCarrito(data) {
+        const lista = document.getElementById('carrito-lista');
+        const sub   = document.getElementById('header-sub');
+
+        if (data.items.length === 0) {
+            lista.innerHTML = `
+                <div class="carrito-vacio">
+                    <div class="icono">🛒</div>
+                    <h3>Tu carrito está vacío</h3>
+                    <p>Explora el catálogo y agrega productos que te interesen.</p>
+                    <a href="/" class="btn-ir-catalogo">Ir al catálogo</a>
+                </div>`;
+            sub.textContent = '0 productos';
+            document.getElementById('res-cantidad').textContent = '0';
+            document.getElementById('res-total').textContent = '$0';
+            document.getElementById('btn-pagar').disabled = true;
+            return;
+        }
+
+        sub.textContent = `${data.cantidad_items} ${data.cantidad_items === 1 ? 'producto' : 'productos'}`;
+        document.getElementById('res-cantidad').textContent = data.cantidad_items;
+        document.getElementById('res-total').textContent = `$${Number(data.total).toLocaleString('es-CO')} COP`;
+        document.getElementById('btn-pagar').disabled = false;
+
+        lista.innerHTML = data.items.map(item => `
+            <div class="carrito-item" id="item-${item.carrito_item_id}">
+                ${item.imagen && item.imagen !== 'default.jpg'
+                    ? `<img src="/uploads/${item.imagen}" alt="${item.producto_nombre}" class="item-img">`
+                    : `<div class="item-img-placeholder">🛍</div>`
+                }
+                <div class="item-info">
+                    <div class="item-empresa">${item.empresa_nombre}</div>
+                    <div class="item-nombre">${item.producto_nombre}</div>
+                    <div class="item-precio-unit">$${Number(item.precio).toLocaleString('es-CO')} c/u</div>
+                </div>
+                <div class="item-acciones">
+                    <div class="cantidad-control">
+                        <button class="qty-btn" onclick="cambiarCantidad(${item.carrito_item_id}, ${item.cantidad - 1}, ${item.stock})">−</button>
+                        <span class="qty-num">${item.cantidad}</span>
+                        <button class="qty-btn" onclick="cambiarCantidad(${item.carrito_item_id}, ${item.cantidad + 1}, ${item.stock})">+</button>
+                    </div>
+                    <div class="item-subtotal">$${Number(item.subtotal).toLocaleString('es-CO')}</div>
+                    <button class="btn-eliminar" onclick="eliminarItem(${item.carrito_item_id})">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ── Cambiar cantidad ────────────────────────────
+    async function cambiarCantidad(itemId, nuevaCantidad, stock) {
+        if (nuevaCantidad < 1) {
+            eliminarItem(itemId);
+            return;
+        }
+        if (nuevaCantidad > stock) {
+            mostrarToast(`Stock máximo: ${stock} unidades`, true);
+            return;
+        }
+        try {
+            const res = await fetch(`/carrito/actualizar/${itemId}`, { credentials: 'include',
+                method : 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({ cantidad: nuevaCantidad })
+            });
+            if (res.ok) cargarCarrito();
+            else {
+                const d = await res.json();
+                mostrarToast(d.error, true);
+            }
+        } catch (err) {
+            mostrarToast('Error al actualizar', true);
+        }
+    }
+
+    // ── Eliminar ítem ───────────────────────────────
+    async function eliminarItem(itemId) {
+        try {
+            const res = await fetch(`/carrito/eliminar/${itemId}`, { credentials: 'include', method: 'DELETE' });
+            if (res.ok) {
+                mostrarToast('Producto eliminado del carrito');
+                cargarCarrito();
+            }
+        } catch (err) {
+            mostrarToast('Error al eliminar', true);
+        }
+    }
+
+    // ── Vaciar carrito ──────────────────────────────
+    async function vaciarCarrito() {
+        if (!confirm('¿Seguro que quieres vaciar todo el carrito?')) return;
+        try {
+            const res = await fetch('/carrito/vaciar', { credentials: 'include',  method: 'DELETE' });
+            if (res.ok) {
+                mostrarToast('Carrito vaciado');
+                cargarCarrito();
+            }
+        } catch (err) {
+            mostrarToast('Error al vaciar', true);
+        }
+    }
+
+    // ── Realizar pedido ─────────────────────────────
+    async function realizarPedido() {
+        const btn = document.getElementById('btn-pagar');
+        btn.disabled = true;
+        btn.textContent = 'Procesando...';
+        try {
+            const res  = await fetch('/pedidos/crear', { credentials: 'include',  method: 'POST' });
+            const data = await res.json();
+            if (res.ok) {
+                mostrarToast('¡Pedido realizado exitosamente! 🎉');
+                setTimeout(() => window.location.href = '/mis-pedidos.html', 1500);
+            } else {
+                mostrarToast(data.error || 'Error al realizar el pedido', true);
+                btn.disabled = false;
+                btn.textContent = 'Realizar pedido';
+            }
+        } catch (err) {
+            mostrarToast('Error de conexión', true);
+            btn.disabled = false;
+            btn.textContent = 'Realizar pedido';
+        }
+    }
+
+    // ── Toast ───────────────────────────────────────
+    function mostrarToast(msg, esError = false) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.borderLeftColor = esError ? '#ef4444' : '#10b981';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Iniciar
+    cargarCarrito();
+</script>
+</body>
+</html>

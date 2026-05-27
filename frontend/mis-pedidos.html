@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pedidos — INTEP Market</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy:#0a1628; --navy2:#112240; --accent:#3b82f6;
+            --white:#ffffff; --gray50:#f8fafc; --gray100:#f1f5f9;
+            --gray300:#cbd5e1; --gray400:#94a3b8; --gray500:#64748b;
+            --gray700:#334155; --green:#10b981; --yellow:#f59e0b;
+            --red:#ef4444; --radius:14px; --shadow:0 4px 24px rgba(0,0,0,0.07);
+        }
+        body { font-family:'DM Sans',sans-serif; background:var(--gray50); color:var(--gray700); min-height:100vh; }
+
+        nav {
+            position:sticky; top:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 2.5rem; height:64px;
+            background:rgba(10,22,40,0.92);
+            backdrop-filter:blur(14px);
+            border-bottom:1px solid rgba(255,255,255,0.07);
+        }
+        .nav-logo { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:600; color:var(--white); text-decoration:none; }
+        .nav-logo span { color:#60a5fa; }
+        .nav-links { display:flex; align-items:center; gap:0.5rem; }
+        .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.875rem; padding:0.45rem 0.9rem; border-radius:8px; transition:all 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color:var(--white); background:rgba(255,255,255,0.1); }
+
+        .page-header { background:var(--navy); padding:2.5rem 2.5rem 2rem; color:var(--white); }
+        .page-header h1 { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:500; }
+        .page-header p { color:rgba(255,255,255,0.45); font-size:0.875rem; font-weight:300; margin-top:0.3rem; }
+
+        .main { max-width:860px; margin:0 auto; padding:2.5rem 2rem; }
+
+        /* ── Tarjeta de pedido ── */
+        .pedido-card {
+            background:var(--white);
+            border:1px solid var(--gray100);
+            border-radius:var(--radius);
+            margin-bottom:1.25rem;
+            overflow:hidden;
+            transition:box-shadow 0.2s;
+        }
+        .pedido-card:hover { box-shadow:var(--shadow); }
+
+        .pedido-header {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:1.25rem 1.5rem;
+            border-bottom:1px solid var(--gray100);
+            flex-wrap:wrap; gap:0.75rem;
+            cursor:pointer;
+        }
+
+        .pedido-header-left { display:flex; align-items:center; gap:1.25rem; }
+
+        .pedido-id {
+            font-family:'Playfair Display',serif;
+            font-size:1rem; font-weight:500; color:var(--navy);
+        }
+
+        .pedido-fecha { font-size:0.8rem; color:var(--gray400); font-weight:300; }
+
+        .pedido-header-right { display:flex; align-items:center; gap:1rem; }
+
+        .pedido-total { font-size:1rem; font-weight:500; color:var(--navy); }
+
+        /* Badges de estado */
+        .badge {
+            display:inline-flex; align-items:center; gap:0.35rem;
+            padding:0.3rem 0.8rem; border-radius:100px;
+            font-size:0.72rem; font-weight:500; letter-spacing:0.04em;
+        }
+        .badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+        .badge-pendiente  { background:#fef9c3; color:#854d0e; }
+        .badge-pagado     { background:#dcfce7; color:#166534; }
+        .badge-enviado    { background:#dbeafe; color:#1e40af; }
+        .badge-entregado  { background:#f0fdf4; color:#15803d; }
+        .badge-cancelado  { background:#fee2e2; color:#991b1b; }
+
+        .chevron {
+            color:var(--gray400); font-size:0.8rem;
+            transition:transform 0.25s;
+        }
+        .pedido-card.open .chevron { transform:rotate(180deg); }
+
+        /* Detalle expandible */
+        .pedido-detalle {
+            max-height:0; overflow:hidden;
+            transition:max-height 0.35s ease;
+        }
+        .pedido-card.open .pedido-detalle { max-height:600px; }
+
+        .detalle-inner { padding:1.25rem 1.5rem; }
+
+        .detalle-item {
+            display:grid;
+            grid-template-columns:48px 1fr auto;
+            gap:1rem; align-items:center;
+            padding:0.75rem 0;
+            border-bottom:1px solid var(--gray100);
+        }
+        .detalle-item:last-child { border-bottom:none; }
+
+        .detalle-img {
+            width:48px; height:48px; border-radius:8px;
+            object-fit:cover; background:var(--gray100);
+        }
+        .detalle-img-placeholder {
+            width:48px; height:48px; border-radius:8px;
+            background:var(--gray100);
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.2rem; color:var(--gray300);
+        }
+        .detalle-info-nombre { font-size:0.88rem; font-weight:500; color:var(--navy); }
+        .detalle-info-meta   { font-size:0.78rem; color:var(--gray500); margin-top:0.15rem; }
+        .detalle-subtotal    { font-size:0.9rem; font-weight:500; color:var(--navy); white-space:nowrap; }
+
+        .detalle-total-row {
+            display:flex; justify-content:space-between;
+            padding-top:1rem; margin-top:0.5rem;
+            border-top:1.5px solid var(--gray100);
+            font-weight:500; color:var(--navy);
+        }
+        .detalle-total-row span:last-child {
+            font-family:'Playfair Display',serif; font-size:1.1rem;
+        }
+
+        /* Estado vacío */
+        .estado-vacio {
+            text-align:center; padding:4rem 2rem;
+            background:var(--white);
+            border:1px solid var(--gray100);
+            border-radius:var(--radius);
+        }
+        .estado-vacio .icono { font-size:3rem; margin-bottom:1rem; opacity:0.3; }
+        .estado-vacio h3 { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:500; color:var(--navy); margin-bottom:0.5rem; }
+        .estado-vacio p { font-size:0.875rem; color:var(--gray500); font-weight:300; margin-bottom:1.5rem; }
+        .btn-catalogo {
+            display:inline-block; background:var(--navy); color:var(--white);
+            text-decoration:none; padding:0.75rem 1.5rem;
+            border-radius:10px; font-size:0.875rem; font-weight:500;
+            transition:background 0.2s;
+        }
+        .btn-catalogo:hover { background:var(--accent); }
+
+        @media(max-width:640px) {
+            nav { padding:0 1.25rem; }
+            .page-header { padding:2rem 1.25rem 1.5rem; }
+            .main { padding:1.5rem 1.25rem; }
+            .pedido-header { flex-direction:column; align-items:flex-start; }
+            .detalle-item { grid-template-columns:40px 1fr; }
+            .detalle-subtotal { grid-column:2; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="nav-logo">INTEP <span>Market</span></a>
+    <div class="nav-links">
+        <a href="/">Catálogo</a>
+        <a href="carrito.html">🛒 Carrito</a>
+        <a href="mis-pedidos.html" class="active">Mis pedidos</a>
+    </div>
+</nav>
+
+<div class="page-header">
+    <h1>Mis pedidos</h1>
+    <p id="header-sub">Cargando...</p>
+</div>
+
+<div class="main" id="main">
+    <div style="text-align:center;padding:3rem;color:var(--gray400)">Cargando pedidos...</div>
+</div>
+
+<script>
+
+    // ── Cargar pedidos ──────────────────────────────
+    async function cargarPedidos() {
+        try {
+            const res = await fetch('/pedidos/mis-pedidos', { credentials: 'include' });
+            if (res.status === 401) { window.location.href = '/login.html'; return; }
+
+            const pedidos = await res.json();
+            const main    = document.getElementById('main');
+            const sub     = document.getElementById('header-sub');
+
+            if (pedidos.length === 0) {
+                sub.textContent = '0 pedidos';
+                main.innerHTML = `
+                    <div class="estado-vacio">
+                        <div class="icono">📦</div>
+                        <h3>Aún no tienes pedidos</h3>
+                        <p>Explora el catálogo y realiza tu primera compra.</p>
+                        <a href="/" class="btn-catalogo">Ir al catálogo</a>
+                    </div>`;
+                return;
+            }
+
+            sub.textContent = `${pedidos.length} ${pedidos.length === 1 ? 'pedido' : 'pedidos'}`;
+
+            main.innerHTML = pedidos.map(p => `
+                <div class="pedido-card" id="card-${p.id}">
+                    <div class="pedido-header" onclick="toggleDetalle(${p.id})">
+                        <div class="pedido-header-left">
+                            <div>
+                                <div class="pedido-id">Pedido #${p.id}</div>
+                                <div class="pedido-fecha">${formatFecha(p.fecha)}</div>
+                            </div>
+                            <span class="badge badge-${p.estado}">${p.estado}</span>
+                        </div>
+                        <div class="pedido-header-right">
+                            <div class="pedido-total">$${Number(p.total).toLocaleString('es-CO')} COP</div>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="pedido-detalle" id="detalle-${p.id}">
+                        <div class="detalle-inner" id="detalle-inner-${p.id}">
+                            <div style="color:var(--gray400);font-size:0.85rem;text-align:center;padding:1rem">
+                                Cargando detalle...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('main').innerHTML = `
+                <div class="estado-vacio">
+                    <div class="icono">⚠</div>
+                    <p>Error al cargar los pedidos. Verifica tu conexión.</p>
+                </div>`;
+        }
+    }
+
+    // ── Toggle detalle ──────────────────────────────
+    async function toggleDetalle(pedidoId) {
+        const card  = document.getElementById(`card-${pedidoId}`);
+        const inner = document.getElementById(`detalle-inner-${pedidoId}`);
+        const yaAbierto = card.classList.contains('open');
+
+        // Cerrar todos
+        document.querySelectorAll('.pedido-card.open').forEach(c => c.classList.remove('open'));
+
+        if (yaAbierto) return;
+
+        card.classList.add('open');
+
+        // Cargar detalle si aún no se cargó
+        if (inner.dataset.loaded) return;
+
+        try {
+            const res    = await fetch(`/pedidos/${pedidoId}`, { credentials: 'include' });
+            const data   = await res.json();
+            inner.dataset.loaded = true;
+
+            if (!data.detalle || data.detalle.length === 0) {
+                inner.innerHTML = '<p style="color:var(--gray400);font-size:0.85rem">Sin detalle disponible.</p>';
+                return;
+            }
+
+            const totalPedido = data.detalle.reduce((s, d) => s + parseFloat(d.subtotal), 0);
+
+            inner.innerHTML = `
+                ${data.detalle.map(d => `
+                    <div class="detalle-item">
+                        ${d.imagen && d.imagen !== 'default.jpg'
+                            ? `<img src="/uploads/${d.imagen}" class="detalle-img" alt="${d.producto_nombre}">`
+                            : `<div class="detalle-img-placeholder">🛍</div>`
+                        }
+                        <div>
+                            <div class="detalle-info-nombre">${d.producto_nombre}</div>
+                            <div class="detalle-info-meta">${d.empresa_nombre} · ${d.cantidad} und. × $${Number(d.precio_unitario).toLocaleString('es-CO')}</div>
+                        </div>
+                        <div class="detalle-subtotal">$${Number(d.subtotal).toLocaleString('es-CO')}</div>
+                    </div>
+                `).join('')}
+                <div class="detalle-total-row">
+                    <span>Total del pedido</span>
+                    <span>$${Number(totalPedido).toLocaleString('es-CO')} COP</span>
+                </div>
+            `;
+        } catch (err) {
+            inner.innerHTML = '<p style="color:var(--gray400);font-size:0.85rem">Error al cargar el detalle.</p>';
+        }
+    }
+
+    // ── Formatear fecha ─────────────────────────────
+    function formatFecha(fechaStr) {
+        const fecha = new Date(fechaStr);
+        return fecha.toLocaleDateString('es-CO', {
+            day:'numeric', month:'long', year:'numeric',
+            hour:'2-digit', minute:'2-digit'
+        });
+    }
+
+    cargarPedidos();
+</script>
+</body>
+</html>

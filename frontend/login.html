@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión — INTEP Market</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #0a1628;
+            --navy2:  #112240;
+            --accent: #3b82f6;
+            --accent2:#60a5fa;
+            --white:  #ffffff;
+            --gray50: #f8fafc;
+            --gray100:#f1f5f9;
+            --gray300:#cbd5e1;
+            --gray400:#94a3b8;
+            --gray500:#64748b;
+            --gray700:#334155;
+            --red:    #ef4444;
+            --green:  #10b981;
+            --radius: 14px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--navy);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* ── PANEL IZQUIERDO (decorativo) ── */
+        .panel-left {
+            background: linear-gradient(160deg, #0a1628 0%, #112240 60%, #0f3460 100%);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: flex-start;
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-left::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(circle at 30% 70%, rgba(59,130,246,0.15) 0%, transparent 50%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            pointer-events: none;
+        }
+
+        .panel-left-content { position: relative; z-index: 1; }
+
+        .panel-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--white);
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 3rem;
+        }
+
+        .panel-logo span { color: var(--accent2); }
+
+        .panel-left h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4rem;
+            font-weight: 500;
+            color: var(--white);
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .panel-left p {
+            color: rgba(255,255,255,0.45);
+            font-size: 0.95rem;
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 320px;
+            margin-bottom: 2.5rem;
+        }
+
+        .panel-features { display: flex; flex-direction: column; gap: 1rem; }
+
+        .panel-feature {
+            display: flex; align-items: center; gap: 0.75rem;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.875rem;
+            font-weight: 300;
+        }
+
+        .panel-feature-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        /* ── PANEL DERECHO (formulario) ── */
+        .panel-right {
+            background: var(--gray50);
+            display: flex; align-items: center; justify-content: center;
+            padding: 3rem 2rem;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 400px;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-card h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--navy);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-card .subtitle {
+            font-size: 0.875rem;
+            color: var(--gray500);
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+
+        /* Campos */
+        .field { margin-bottom: 1.25rem; }
+
+        .field label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--gray700);
+            margin-bottom: 0.45rem;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--gray300);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--navy);
+            background: var(--white);
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+        }
+
+        .field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+
+        .field input::placeholder { color: var(--gray400); }
+
+        /* Input de contraseña con botón */
+        .input-pass { position: relative; }
+
+        .input-pass input { padding-right: 3.5rem; }
+
+        .toggle-pass {
+            position: absolute; right: 0.75rem; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none; cursor: pointer;
+            color: var(--gray400); padding: 0.25rem;
+            font-size: 0.78rem; font-family: 'DM Sans', sans-serif;
+            transition: color 0.15s;
+        }
+
+        .toggle-pass:hover { color: var(--navy); }
+
+        /* Botón principal */
+        .btn-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--navy);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+
+        .btn-submit:hover { background: var(--accent); transform: translateY(-1px); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Mensaje de error/éxito */
+        .mensaje {
+            min-height: 20px;
+            font-size: 0.82rem;
+            text-align: center;
+            margin: 0.75rem 0;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .mensaje.error   { display: block; background: #fef2f2; color: var(--red); border: 1px solid #fecaca; }
+        .mensaje.success { display: block; background: #f0fdf4; color: var(--green); border: 1px solid #bbf7d0; }
+
+        /* Links inferiores */
+        .form-links {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.83rem;
+            color: var(--gray500);
+        }
+
+        .form-links a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .form-links a:hover { text-decoration: underline; }
+
+        .divider {
+            display: flex; align-items: center; gap: 1rem;
+            margin: 1.25rem 0;
+        }
+
+        .divider::before, .divider::after {
+            content: ''; flex: 1;
+            height: 1px; background: var(--gray300);
+        }
+
+        .divider span { font-size: 0.78rem; color: var(--gray400); white-space: nowrap; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .panel-left { display: none; }
+            .panel-right { padding: 2rem 1.5rem; min-height: 100vh; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Panel izquierdo decorativo -->
+<div class="panel-left">
+    <div class="panel-left-content">
+        <a href="/" class="panel-logo">INTEP <span>Market</span></a>
+        <h2>Bienvenido<br>de nuevo</h2>
+        <p>Accede a tu cuenta para explorar, comprar y gestionar productos del ecosistema emprendedor INTEP.</p>
+        <div class="panel-features">
+            <div class="panel-feature">
+                <div class="panel-feature-dot"></div>
+                Catálogo de productos locales
+            </div>
+            <div class="panel-feature">
+                <div class="panel-feature-dot"></div>
+                Gestión de pedidos en tiempo real
+            </div>
+            <div class="panel-feature">
+                <div class="panel-feature-dot"></div>
+                Panel de empresa para vendedores
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Panel derecho con formulario -->
+<div class="panel-right">
+    <div class="form-card">
+        <h1>Iniciar sesión</h1>
+        <p class="subtitle">Ingresa tus credenciales para continuar</p>
+
+        <form id="loginForm" autocomplete="on">
+            <div class="field">
+                <label for="correo">Correo electrónico</label>
+                <input type="email" id="correo" name="correo"
+                       placeholder="ejemplo@intep.edu.co" required autocomplete="email">
+            </div>
+
+            <div class="field">
+                <label for="clave">Contraseña</label>
+                <div class="input-pass">
+                    <input type="password" id="clave" name="clave"
+                           placeholder="Tu contraseña" required autocomplete="current-password">
+                    <button type="button" class="toggle-pass" id="togglePass">Mostrar</button>
+                </div>
+            </div>
+
+            <div class="mensaje" id="mensaje"></div>
+
+            <button type="submit" class="btn-submit" id="btnSubmit">
+                Entrar al sistema
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </form>
+
+        <div class="divider"><span>¿No tienes cuenta?</span></div>
+
+        <div class="form-links">
+            <a href="registro.html">Regístrate como comprador o empresa →</a>
+        </div>
+
+        <div class="form-links" style="margin-top:0.75rem">
+            <a href="/" style="color:var(--gray400); font-weight:400">← Volver al inicio</a>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    // Mostrar / ocultar contraseña
+    const togglePass = document.getElementById('togglePass');
+    const inputClave = document.getElementById('clave');
+    togglePass.addEventListener('click', () => {
+        const esPassword = inputClave.type === 'password';
+        inputClave.type = esPassword ? 'text' : 'password';
+        togglePass.textContent = esPassword ? 'Ocultar' : 'Mostrar';
+    });
+
+    // Mostrar mensaje
+    function mostrarMensaje(texto, tipo) {
+        const el = document.getElementById('mensaje');
+        el.textContent = texto;
+        el.className = `mensaje ${tipo}`;
+    }
+
+    // Envío del formulario
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.textContent = 'Ingresando...';
+
+        const correo = document.getElementById('correo').value.trim();
+        const clave  = document.getElementById('clave').value;
+
+        try {
+            const res  = await fetch('/auth/login', { credentials: 'include', 
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({ correo, clave })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                mostrarMensaje('¡Bienvenido! Redirigiendo...', 'success');
+                setTimeout(() => {
+                    if (data.rol === 'admin')    window.location.href = '/dashboard-admin.html';
+                    else if (data.rol === 'empresa') window.location.href = '/dashboard-empresa.html';
+                    else                         window.location.href = '/dashboard-comprador.html';
+                }, 800);
+            } else {
+                mostrarMensaje(data.error || 'Correo o contraseña incorrectos', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Entrar al sistema <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+            }
+        } catch (err) {
+            mostrarMensaje('Error de conexión con el servidor', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Entrar al sistema';
+        }
+    });
+</script>
+</body>
+</html>

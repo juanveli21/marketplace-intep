@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi cuenta — INTEP Market</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:   #0a1628;
+            --navy2:  #112240;
+            --accent: #3b82f6;
+            --accent2:#60a5fa;
+            --white:  #ffffff;
+            --gray50: #f8fafc;
+            --gray100:#f1f5f9;
+            --gray300:#cbd5e1;
+            --gray400:#94a3b8;
+            --gray500:#64748b;
+            --gray700:#334155;
+            --green:  #10b981;
+            --red:    #ef4444;
+            --yellow: #f59e0b;
+            --radius: 14px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+
+        body { font-family:'DM Sans',sans-serif; background:var(--gray50); color:var(--gray700); min-height:100vh; }
+
+        /* ── NAV ── */
+        nav {
+            position:sticky; top:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0 2.5rem; height:64px;
+            background:rgba(10,22,40,0.95);
+            backdrop-filter:blur(14px);
+            border-bottom:1px solid rgba(255,255,255,0.07);
+        }
+        .nav-logo { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:600; color:var(--white); text-decoration:none; }
+        .nav-logo span { color:var(--accent2); }
+        .nav-links { display:flex; align-items:center; gap:0.5rem; }
+        .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.875rem; padding:0.45rem 0.9rem; border-radius:8px; transition:all 0.2s; }
+        .nav-links a:hover { color:var(--white); background:rgba(255,255,255,0.08); }
+        .btn-logout {
+            background:none; border:1px solid rgba(255,255,255,0.15);
+            color:rgba(255,255,255,0.55); font-family:'DM Sans',sans-serif;
+            font-size:0.8rem; padding:0.4rem 0.9rem; border-radius:8px;
+            cursor:pointer; transition:all 0.2s;
+        }
+        .btn-logout:hover { border-color:var(--red); color:var(--red); background:rgba(239,68,68,0.07); }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            background:var(--navy); padding:2.5rem 2.5rem 0;
+            color:var(--white); position:relative; overflow:hidden;
+        }
+        .page-header::before {
+            content:''; position:absolute; inset:0;
+            background-image:
+                radial-gradient(circle at 80% 50%, rgba(59,130,246,0.1) 0%, transparent 50%),
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size:100% 100%, 50px 50px, 50px 50px; pointer-events:none;
+        }
+        .page-header-top { position:relative; z-index:1; margin-bottom:2rem; }
+        .page-header h1 { font-family:'Playfair Display',serif; font-size:1.8rem; font-weight:500; }
+        .page-header p { color:rgba(255,255,255,0.4); font-size:0.875rem; font-weight:300; margin-top:0.3rem; }
+
+        /* ── STATS ── */
+        .stats-row {
+            position:relative; z-index:1;
+            display:grid; grid-template-columns:repeat(3,1fr);
+            border-top:1px solid rgba(255,255,255,0.07);
+        }
+        .stat-item { padding:1.25rem 2rem; border-right:1px solid rgba(255,255,255,0.07); }
+        .stat-item:last-child { border-right:none; }
+        .stat-val { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:500; color:var(--white); }
+        .stat-label { font-size:0.72rem; font-weight:300; color:rgba(255,255,255,0.38); margin-top:0.15rem; text-transform:uppercase; letter-spacing:0.05em; }
+
+        /* ── TABS ── */
+        .tabs { position:relative; z-index:1; display:flex; border-top:1px solid rgba(255,255,255,0.07); }
+        .tab-btn {
+            background:none; border:none; color:rgba(255,255,255,0.45);
+            font-family:'DM Sans',sans-serif; font-size:0.875rem; font-weight:400;
+            padding:1rem 1.5rem; cursor:pointer; transition:all 0.2s;
+            border-bottom:2px solid transparent; position:relative; top:1px;
+        }
+        .tab-btn:hover { color:rgba(255,255,255,0.75); }
+        .tab-btn.active { color:var(--white); border-bottom-color:var(--accent); }
+
+        /* ── MAIN ── */
+        .main { max-width:960px; margin:0 auto; padding:2rem 2.5rem; }
+        .panel { display:none; }
+        .panel.active { display:block; }
+
+        /* ── TOOLBAR ── */
+        .toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap; }
+        .toolbar-left { display:flex; align-items:center; gap:0.75rem; }
+        .toolbar h2 { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:500; color:var(--navy); }
+        .badge-count { background:var(--gray100); color:var(--gray500); font-size:0.75rem; font-weight:500; padding:0.2rem 0.6rem; border-radius:20px; }
+        .btn-primary {
+            display:flex; align-items:center; gap:0.5rem;
+            background:var(--navy); color:var(--white); border:none;
+            padding:0.6rem 1.25rem; border-radius:10px;
+            font-family:'DM Sans',sans-serif; font-size:0.875rem; font-weight:500;
+            cursor:pointer; transition:all 0.2s; text-decoration:none;
+        }
+        .btn-primary:hover { background:var(--accent); transform:translateY(-1px); }
+
+        /* ── CARRITO ── */
+        .carrito-wrap { display:flex; flex-direction:column; gap:1rem; }
+
+        .carrito-item {
+            background:var(--white);
+            border:1px solid var(--gray100);
+            border-radius:var(--radius);
+            padding:1.25rem;
+            display:grid; grid-template-columns:56px 1fr auto;
+            gap:1rem; align-items:center;
+            transition:box-shadow 0.2s;
+        }
+        .carrito-item:hover { box-shadow:var(--shadow); }
+        .item-img {
+            width:56px; height:56px; border-radius:10px;
+            object-fit:cover; background:var(--gray100);
+        }
+        .item-img-ph {
+            width:56px; height:56px; border-radius:10px;
+            background:var(--gray100); display:flex; align-items:center;
+            justify-content:center; font-size:1.3rem; color:var(--gray300);
+        }
+        .item-nombre { font-weight:500; color:var(--navy); font-size:0.9rem; }
+        .item-meta { font-size:0.8rem; color:var(--gray400); font-weight:300; margin-top:0.2rem; }
+        .item-precio { font-weight:500; color:var(--navy); font-size:0.95rem; white-space:nowrap; }
+
+        .carrito-resumen {
+            background:var(--white); border:1px solid var(--gray100);
+            border-radius:var(--radius); padding:1.5rem;
+            margin-top:0.5rem;
+        }
+        .resumen-row { display:flex; justify-content:space-between; padding:0.5rem 0; font-size:0.875rem; color:var(--gray500); }
+        .resumen-total {
+            display:flex; justify-content:space-between;
+            padding-top:1rem; margin-top:0.5rem;
+            border-top:1.5px solid var(--gray100);
+            font-weight:500; color:var(--navy);
+        }
+        .resumen-total span:last-child { font-family:'Playfair Display',serif; font-size:1.1rem; }
+        .btn-comprar {
+            width:100%; margin-top:1rem; padding:0.85rem;
+            background:var(--navy); color:var(--white); border:none;
+            border-radius:10px; font-family:'DM Sans',sans-serif;
+            font-size:0.9rem; font-weight:500; cursor:pointer; transition:all 0.2s;
+        }
+        .btn-comprar:hover { background:var(--accent); }
+
+        /* ── PEDIDOS ── */
+        .pedido-card {
+            background:var(--white); border:1px solid var(--gray100);
+            border-radius:var(--radius); margin-bottom:1rem;
+            overflow:hidden; transition:box-shadow 0.2s;
+        }
+        .pedido-card:hover { box-shadow:var(--shadow); }
+        .pedido-header {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:1.1rem 1.5rem; cursor:pointer;
+        }
+        .pedido-header-left { display:flex; align-items:center; gap:1rem; }
+        .pedido-id { font-weight:500; color:var(--navy); font-size:0.9rem; }
+        .pedido-fecha { font-size:0.78rem; color:var(--gray400); font-weight:300; margin-top:0.1rem; }
+        .pedido-total { font-weight:500; color:var(--navy); font-size:0.9rem; }
+        .chevron { color:var(--gray400); font-size:0.75rem; transition:transform 0.2s; }
+        .pedido-card.open .chevron { transform:rotate(180deg); }
+
+        .badge-pedido {
+            display:inline-flex; align-items:center; gap:0.3rem;
+            font-size:0.72rem; font-weight:500; padding:0.22rem 0.6rem; border-radius:20px;
+        }
+        .badge-pedido.pendiente  { background:#fef9ec; color:var(--yellow); }
+        .badge-pedido.procesando { background:#eff6ff; color:var(--accent); }
+        .badge-pedido.enviado    { background:#f0fdf4; color:var(--green); }
+        .badge-pedido.entregado  { background:#f1f5f9; color:var(--gray500); }
+        .badge-pedido.cancelado  { background:#fef2f2; color:var(--red); }
+
+        .pedido-detalle { max-height:0; overflow:hidden; transition:max-height 0.3s ease; }
+        .pedido-card.open .pedido-detalle { max-height:600px; }
+        .pedido-detalle-inner {
+            padding:0 1.5rem 1.25rem;
+            border-top:1px solid var(--gray100);
+        }
+        .detalle-item {
+            display:grid; grid-template-columns:44px 1fr auto;
+            gap:0.85rem; align-items:center; padding:0.75rem 0;
+            border-bottom:1px solid var(--gray50);
+        }
+        .detalle-item:last-of-type { border-bottom:none; }
+        .det-img { width:44px; height:44px; border-radius:8px; object-fit:cover; background:var(--gray100); }
+        .det-img-ph { width:44px; height:44px; border-radius:8px; background:var(--gray100); display:flex; align-items:center; justify-content:center; font-size:1rem; color:var(--gray300); }
+        .det-nombre { font-size:0.85rem; font-weight:500; color:var(--navy); }
+        .det-meta   { font-size:0.75rem; color:var(--gray400); font-weight:300; margin-top:0.1rem; }
+        .det-sub    { font-size:0.875rem; font-weight:500; color:var(--navy); white-space:nowrap; }
+        .detalle-total-row {
+            display:flex; justify-content:space-between;
+            padding-top:0.85rem; margin-top:0.25rem;
+            border-top:1.5px solid var(--gray100);
+            font-weight:500; color:var(--navy); font-size:0.875rem;
+        }
+        .detalle-total-row span:last-child { font-family:'Playfair Display',serif; font-size:1rem; }
+
+        /* ── PERFIL ── */
+        .perfil-card {
+            background:var(--white); border:1px solid var(--gray100);
+            border-radius:var(--radius); padding:2rem; box-shadow:var(--shadow);
+            max-width:520px;
+        }
+        .perfil-avatar {
+            width:72px; height:72px; border-radius:50%;
+            background:var(--navy2); display:flex; align-items:center;
+            justify-content:center; font-family:'Playfair Display',serif;
+            font-size:1.6rem; color:var(--accent2); margin-bottom:1.5rem;
+        }
+        .field { margin-bottom:1.1rem; }
+        .field label { display:block; font-size:0.82rem; font-weight:500; color:var(--gray700); margin-bottom:0.4rem; }
+        .field input {
+            width:100%; padding:0.7rem 1rem;
+            border:1.5px solid var(--gray300); border-radius:10px;
+            font-family:'DM Sans',sans-serif; font-size:0.875rem;
+            color:var(--navy); background:var(--white); outline:none;
+            transition:border-color 0.18s, box-shadow 0.18s;
+        }
+        .field input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
+        .field input:disabled { background:var(--gray50); color:var(--gray400); cursor:not-allowed; }
+        .btn-guardar-perfil {
+            padding:0.75rem 2rem; background:var(--navy); color:var(--white);
+            border:none; border-radius:10px; font-family:'DM Sans',sans-serif;
+            font-size:0.875rem; font-weight:500; cursor:pointer; transition:all 0.2s;
+        }
+        .btn-guardar-perfil:hover { background:var(--accent); }
+
+
+        .resena-card{background:var(--white);border:1px solid var(--gray100);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:0.75rem;box-shadow:var(--shadow)}
+        .estrellas-input{display:flex;gap:0.25rem;margin:0.5rem 0}
+        .estrella{font-size:1.5rem;cursor:pointer;color:var(--gray300);transition:color 0.15s;line-height:1}
+        .estrella.on{color:var(--yellow)}
+        .estrella:hover,.estrella.hover{color:var(--yellow)}
+
+        /* ── ESTADO VACÍO ── */
+        .estado-vacio { text-align:center; padding:4rem 2rem; }
+        .estado-vacio .icono { font-size:2.5rem; opacity:0.2; margin-bottom:1rem; }
+        .estado-vacio h3 { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:500; color:var(--navy); margin-bottom:0.4rem; }
+        .estado-vacio p { font-size:0.875rem; color:var(--gray400); font-weight:300; margin-bottom:1.5rem; }
+
+        /* ── TOAST ── */
+        .toast {
+            position:fixed; bottom:2rem; right:2rem;
+            background:var(--navy); color:var(--white);
+            padding:0.85rem 1.25rem; border-radius:12px;
+            font-size:0.875rem; box-shadow:0 8px 32px rgba(0,0,0,0.18);
+            transform:translateY(8px); opacity:0; transition:all 0.3s;
+            z-index:300; max-width:300px;
+        }
+        .toast.show { opacity:1; transform:translateY(0); }
+        .toast.error   { background:var(--red); }
+        .toast.success { background:var(--green); }
+
+        @media (max-width:640px) {
+            nav { padding:0 1.25rem; }
+            .page-header { padding:2rem 1.25rem 0; }
+            .stats-row { grid-template-columns:repeat(3,1fr); }
+            .main { padding:1.5rem 1.25rem; }
+            .carrito-item { grid-template-columns:44px 1fr; }
+            .item-precio { grid-column:2; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="nav-logo">INTEP <span>Market</span></a>
+    <div class="nav-links">
+        <a href="index.html">Catálogo</a>
+        <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="page-header-top">
+        <h1>Mi cuenta</h1>
+        <p>Bienvenido, <span id="header-nombre">—</span></p>
+    </div>
+    <div class="stats-row">
+        <div class="stat-item">
+            <div class="stat-val" id="stat-carrito">—</div>
+            <div class="stat-label">En el carrito</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-val" id="stat-pedidos">—</div>
+            <div class="stat-label">Pedidos</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-val" id="stat-total">—</div>
+            <div class="stat-label">Total gastado</div>
+        </div>
+    </div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="cambiarTab('carrito',this)">🛒 Carrito</button>
+        <button class="tab-btn" onclick="cambiarTab('pedidos',this)">📦 Mis pedidos</button>
+        <button class="tab-btn" onclick="cambiarTab('resenas',this)">⭐ Reseñas</button>
+        <button class="tab-btn" onclick="cambiarTab('perfil',this)">👤 Mi perfil</button>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- ── PANEL CARRITO ── -->
+    <div class="panel active" id="panel-carrito">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <h2>Carrito de compras</h2>
+                <span class="badge-count" id="badge-carrito">0</span>
+            </div>
+            <a href="index.html" class="btn-primary">Seguir comprando</a>
+        </div>
+        <div id="carrito-contenido">
+            <div class="estado-vacio">
+                <div class="icono">🛒</div>
+                <p>Cargando carrito...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PANEL PEDIDOS ── -->
+    <div class="panel" id="panel-pedidos">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <h2>Mis pedidos</h2>
+                <span class="badge-count" id="badge-pedidos">0</span>
+            </div>
+        </div>
+        <div id="pedidos-contenido">
+            <div class="estado-vacio">
+                <div class="icono">📦</div>
+                <p>Cargando pedidos...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ── PANEL RESEÑAS ── -->
+    <div class="panel" id="panel-resenas">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <h2>Mis reseñas</h2>
+                <span class="badge-count" id="badge-resenas-comp">0</span>
+            </div>
+        </div>
+        <div id="resenas-comp-contenido">
+            <div class="estado-vacio">
+                <div class="icono">⭐</div>
+                <p>Cargando reseñas...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PANEL PERFIL ── -->
+    <div class="panel" id="panel-perfil">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <h2>Mi perfil</h2>
+            </div>
+        </div>
+        <div class="perfil-card">
+            <div class="perfil-avatar" id="perfil-avatar">—</div>
+            <div class="field">
+                <label>Nombre completo</label>
+                <input type="text" id="perfil-nombre" placeholder="Tu nombre">
+            </div>
+            <div class="field">
+                <label>Correo electrónico</label>
+                <input type="email" id="perfil-correo" disabled>
+            </div>
+            <div class="field">
+                <label>Nueva contraseña <span style="color:var(--gray400);font-weight:300">(dejar vacío para no cambiar)</span></label>
+                <input type="password" id="perfil-clave" placeholder="••••••••">
+            </div>
+            <button class="btn-guardar-perfil" onclick="guardarPerfil()">Guardar cambios</button>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    // ── Init ────────────────────────────────────────
+    async function init() {
+        try {
+            const res  = await fetch('/auth/sesion', { credentials: 'include' });
+            const data = await res.json();
+            if (!data.logueado || data.rol !== 'comprador') {
+                window.location.href = 'login.html'; return;
+            }
+            document.getElementById('header-nombre').textContent = data.nombre;
+            document.getElementById('perfil-nombre').value       = data.nombre;
+            document.getElementById('perfil-avatar').textContent = data.nombre.charAt(0).toUpperCase();
+        } catch {
+            window.location.href = 'login.html'; return;
+        }
+        await Promise.all([cargarCarrito(), cargarPedidos(), cargarCorreo(), cargarResenasComp()]);
+    }
+
+    // ── Tabs ─────────────────────────────────────────
+    function cambiarTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    // ── Cargar carrito ────────────────────────────────
+    async function cargarCarrito() {
+        try {
+            const res  = await fetch('/carrito', { credentials: 'include' });
+            if (res.status === 401) { window.location.href = 'login.html'; return; }
+            const data = await res.json();
+            const items = data.items || [];
+
+            document.getElementById('stat-carrito').textContent = items.length;
+            document.getElementById('badge-carrito').textContent = items.length;
+
+            const contenido = document.getElementById('carrito-contenido');
+
+            if (items.length === 0) {
+                contenido.innerHTML = `
+                    <div class="estado-vacio">
+                        <div class="icono">🛒</div>
+                        <h3>Tu carrito está vacío</h3>
+                        <p>Explora el catálogo y añade productos que te interesen.</p>
+                        <a href="index.html" class="btn-primary" style="display:inline-flex">Ir al catálogo</a>
+                    </div>`;
+                return;
+            }
+
+            const subtotal = items.reduce((s, i) => s + parseFloat(i.subtotal || i.precio * i.cantidad), 0);
+
+            contenido.innerHTML = `
+                <div class="carrito-wrap">
+                    ${items.map(i => `
+                        <div class="carrito-item">
+                            ${i.imagen && i.imagen !== 'default.jpg'
+                                ? `<img src="/uploads/${i.imagen}" class="item-img" alt="${i.nombre}">`
+                                : `<div class="item-img-ph">🛍</div>`}
+                            <div>
+                                <div class="item-nombre">${i.nombre}</div>
+                                <div class="item-meta">${i.empresa_nombre || ''} · ${i.cantidad} und. × $${Number(i.precio).toLocaleString('es-CO')}</div>
+                            </div>
+                            <div class="item-precio">$${Number(i.subtotal || i.precio * i.cantidad).toLocaleString('es-CO')}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="carrito-resumen">
+                    <div class="resumen-row"><span>Subtotal (${items.length} producto${items.length > 1 ? 's' : ''})</span><span>$${subtotal.toLocaleString('es-CO')} COP</span></div>
+                    <div class="resumen-total"><span>Total</span><span>$${subtotal.toLocaleString('es-CO')} COP</span></div>
+                    <button class="btn-comprar" onclick="confirmarPedido()">Confirmar pedido →</button>
+                </div>`;
+        } catch (e) { mostrarToast('Error al cargar el carrito', true); }
+    }
+
+    // ── Confirmar pedido ──────────────────────────────
+    async function confirmarPedido() {
+        if (!confirm('¿Confirmar el pedido con los productos del carrito?')) return;
+        try {
+            const res  = await fetch('/pedidos/crear', { method:'POST', credentials:'include' });
+            const data = await res.json();
+            if (res.ok) {
+                mostrarToast('¡Pedido confirmado! ✓', false, true);
+                await Promise.all([cargarCarrito(), cargarPedidos()]);
+                // Cambiar a pestaña de pedidos
+                document.querySelectorAll('.tab-btn')[1].click();
+            } else {
+                mostrarToast(data.error || 'Error al confirmar pedido', true);
+            }
+        } catch { mostrarToast('Error de conexión', true); }
+    }
+
+    // ── Cargar pedidos ────────────────────────────────
+    async function cargarPedidos() {
+        try {
+            const res    = await fetch('/pedidos/mis-pedidos', { credentials: 'include' });
+            const pedidos = await res.json();
+
+            document.getElementById('stat-pedidos').textContent = pedidos.length;
+            document.getElementById('badge-pedidos').textContent = pedidos.length;
+
+            const totalGastado = pedidos.reduce((s, p) => s + parseFloat(p.total || 0), 0);
+            document.getElementById('stat-total').textContent =
+                totalGastado > 0 ? '$' + Math.round(totalGastado / 1000) + 'k' : '$0';
+
+            const contenido = document.getElementById('pedidos-contenido');
+
+            if (pedidos.length === 0) {
+                contenido.innerHTML = `
+                    <div class="estado-vacio">
+                        <div class="icono">📦</div>
+                        <h3>Aún no tienes pedidos</h3>
+                        <p>Cuando confirmes tu carrito, tus pedidos aparecerán aquí.</p>
+                        <a href="index.html" class="btn-primary" style="display:inline-flex">Ir al catálogo</a>
+                    </div>`;
+                return;
+            }
+
+            contenido.innerHTML = pedidos.map(p => {
+                const cls = ['pendiente','procesando','enviado','entregado','cancelado']
+                    .includes(p.estado) ? p.estado : 'pendiente';
+                return `
+                <div class="pedido-card" id="card-${p.id}">
+                    <div class="pedido-header" onclick="toggleDetalle(${p.id})">
+                        <div class="pedido-header-left">
+                            <div>
+                                <div class="pedido-id">Pedido #${p.id}</div>
+                                <div class="pedido-fecha">${formatFecha(p.fecha)}</div>
+                            </div>
+                            <span class="badge-pedido ${cls}">${p.estado}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:1rem">
+                            <span class="pedido-total">$${Number(p.total).toLocaleString('es-CO')} COP</span>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="pedido-detalle" id="det-${p.id}">
+                        <div class="pedido-detalle-inner" id="det-inner-${p.id}">
+                            <div style="color:var(--gray400);font-size:0.85rem;text-align:center;padding:1rem">Cargando...</div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (e) { mostrarToast('Error al cargar pedidos', true); }
+    }
+
+    // ── Toggle detalle pedido ─────────────────────────
+    async function toggleDetalle(id) {
+        const card  = document.getElementById('card-' + id);
+        const inner = document.getElementById('det-inner-' + id);
+        const abierto = card.classList.contains('open');
+
+        document.querySelectorAll('.pedido-card.open').forEach(c => c.classList.remove('open'));
+        if (abierto) return;
+
+        card.classList.add('open');
+        if (inner.dataset.loaded) return;
+
+        try {
+            const res  = await fetch(`/pedidos/${id}`, { credentials: 'include' });
+            const data = await res.json();
+            inner.dataset.loaded = '1';
+
+            if (!data.detalle || !data.detalle.length) {
+                inner.innerHTML = '<p style="color:var(--gray400);font-size:0.85rem">Sin detalle disponible.</p>';
+                return;
+            }
+
+            const total = data.detalle.reduce((s, d) => s + parseFloat(d.subtotal), 0);
+            inner.innerHTML = `
+                ${data.detalle.map(d => `
+                    <div class="detalle-item">
+                        ${d.imagen && d.imagen !== 'default.jpg'
+                            ? `<img src="/uploads/${d.imagen}" class="det-img" alt="${d.producto_nombre}">`
+                            : `<div class="det-img-ph">🛍</div>`}
+                        <div>
+                            <div class="det-nombre">${d.producto_nombre}</div>
+                            <div class="det-meta">${d.empresa_nombre} · ${d.cantidad} und. × $${Number(d.precio_unitario).toLocaleString('es-CO')}</div>
+                        </div>
+                        <div class="det-sub">$${Number(d.subtotal).toLocaleString('es-CO')}</div>
+                    </div>
+                `).join('')}
+                <div class="detalle-total-row">
+                    <span>Total del pedido</span>
+                    <span>$${Number(total).toLocaleString('es-CO')} COP</span>
+                </div>`;
+        } catch {
+            inner.innerHTML = '<p style="color:var(--gray400);font-size:0.85rem">Error al cargar el detalle.</p>';
+        }
+    }
+
+    // ── Cargar correo del perfil ──────────────────────
+    async function cargarCorreo() {
+        try {
+            const res  = await fetch('/auth/sesion', { credentials: 'include' });
+            const data = await res.json();
+            if (data.logueado) {
+                // El correo no viene en sesión, lo dejamos vacío o puedes agregar un endpoint
+                document.getElementById('perfil-correo').value = data.correo || '';
+            }
+        } catch { }
+    }
+
+    // ── Guardar perfil ────────────────────────────────
+    async function guardarPerfil() {
+        const nombre = document.getElementById('perfil-nombre').value.trim();
+        const clave  = document.getElementById('perfil-clave').value;
+        if (!nombre) { mostrarToast('El nombre no puede estar vacío', true); return; }
+        try {
+            const res  = await fetch('/auth/actualizar-perfil', {
+                method : 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({ nombre, clave: clave || undefined }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (res.ok) {
+                mostrarToast('Perfil actualizado ✓', false, true);
+                document.getElementById('header-nombre').textContent = nombre;
+                document.getElementById('perfil-avatar').textContent = nombre.charAt(0).toUpperCase();
+                document.getElementById('perfil-clave').value = '';
+            } else {
+                mostrarToast(data.error || 'Error al guardar', true);
+            }
+        } catch { mostrarToast('Error de conexión', true); }
+    }
+
+
+    // ── Reseñas ─────────────────────────────────────────
+    async function cargarResenasComp() {
+        try {
+            // Obtener pedidos para saber qué productos puede reseñar
+            const res = await fetch('/pedidos/mis-pedidos', { credentials: 'include' });
+            const pedidos = await res.json();
+
+            const contenido = document.getElementById('resenas-comp-contenido');
+
+            // Obtener todos los productos comprados con sus detalles
+            const productosComprados = [];
+            for (const pedido of pedidos) {
+                try {
+                    const r = await fetch(`/pedidos/${pedido.id}`, { credentials: 'include' });
+                    const d = await r.json();
+                    if (d.detalle) {
+                        d.detalle.forEach(item => {
+                            if (!productosComprados.find(p => p.producto_id === item.producto_id)) {
+                                productosComprados.push(item);
+                            }
+                        });
+                    }
+                } catch {}
+            }
+
+            document.getElementById('badge-resenas-comp').textContent = productosComprados.length;
+
+            if (!productosComprados.length) {
+                contenido.innerHTML = `<div class="estado-vacio"><div class="icono">⭐</div><h3>Sin compras aún</h3><p>Cuando realices pedidos podrás dejar reseñas de los productos.</p></div>`;
+                return;
+            }
+
+            contenido.innerHTML = `
+                <p style="font-size:0.875rem;color:var(--gray400);font-weight:300;margin-bottom:1.25rem">Puedes dejar una reseña de cada producto que hayas comprado.</p>
+                ${productosComprados.map(item => `
+                <div class="resena-card" id="resena-prod-${item.producto_id}">
+                    <div style="display:flex;align-items:center;gap:0.85rem;margin-bottom:1rem">
+                        ${item.imagen && item.imagen !== 'default.jpg'
+                            ? `<img src="/uploads/${item.imagen}" style="width:44px;height:44px;border-radius:10px;object-fit:cover" alt="${item.producto_nombre}">`
+                            : `<div style="width:44px;height:44px;border-radius:10px;background:var(--gray100);display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--gray300)">🛍</div>`}
+                        <div>
+                            <div style="font-weight:500;color:var(--navy);font-size:0.9rem">${item.producto_nombre}</div>
+                            <div style="font-size:0.78rem;color:var(--gray400);font-weight:300">${item.empresa_nombre}</div>
+                        </div>
+                    </div>
+                    <div id="form-resena-${item.producto_id}">
+                        <div style="font-size:0.82rem;font-weight:500;color:var(--gray700);margin-bottom:0.3rem">Tu calificación</div>
+                        <div class="estrellas-input" id="estrellas-${item.producto_id}">
+                            ${[1,2,3,4,5].map(n => `<span class="estrella" data-val="${n}" onclick="seleccionarEstrella(${item.producto_id},${n})" onmouseover="hoverEstrella(${item.producto_id},${n})" onmouseout="unhoverEstrella(${item.producto_id})">★</span>`).join('')}
+                        </div>
+                        <textarea id="comentario-${item.producto_id}" placeholder="Cuéntanos tu experiencia con este producto (opcional)..." style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid var(--gray300);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--navy);resize:vertical;min-height:70px;outline:none;margin-top:0.5rem"></textarea>
+                        <button onclick="publicarResena(${item.producto_id})" style="margin-top:0.75rem;padding:0.55rem 1.25rem;background:var(--navy);color:var(--white);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background='#3b82f6'" onmouseout="this.style.background='var(--navy)'">Publicar reseña</button>
+                    </div>
+                </div>`).join('')}`;
+
+            window._estrellasSel = {};
+        } catch { mostrarToast('Error al cargar reseñas', true); }
+    }
+
+    function seleccionarEstrella(productoId, val) {
+        window._estrellasSel = window._estrellasSel || {};
+        window._estrellasSel[productoId] = val;
+        const cont = document.getElementById('estrellas-' + productoId);
+        cont.querySelectorAll('.estrella').forEach(e => {
+            e.classList.toggle('on', parseInt(e.dataset.val) <= val);
+        });
+    }
+
+    function hoverEstrella(productoId, val) {
+        document.getElementById('estrellas-' + productoId).querySelectorAll('.estrella').forEach(e => {
+            e.classList.toggle('hover', parseInt(e.dataset.val) <= val);
+        });
+    }
+
+    function unhoverEstrella(productoId) {
+        document.getElementById('estrellas-' + productoId).querySelectorAll('.estrella').forEach(e => e.classList.remove('hover'));
+    }
+
+    async function publicarResena(productoId) {
+        const cal = (window._estrellasSel || {})[productoId];
+        if (!cal) { mostrarToast('Selecciona una calificación', true); return; }
+        const comentario = document.getElementById('comentario-' + productoId).value;
+        try {
+            const res  = await fetch('/reseñas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ producto_id: productoId, calificacion: cal, comentario }),
+                credentials: 'include'
+            });
+            const data = await res.json();
+            if (res.ok) {
+                mostrarToast('¡Reseña publicada! ✓', false, true);
+                const form = document.getElementById('form-resena-' + productoId);
+                form.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--green);font-weight:500">✓ Reseña publicada — ${'★'.repeat(cal)}${'☆'.repeat(5-cal)}</div>`;
+            } else {
+                mostrarToast(data.error || 'Error al publicar', true);
+            }
+        } catch { mostrarToast('Error de conexión', true); }
+    }
+
+    // ── Logout ────────────────────────────────────────
+    async function logout() {
+        await fetch('/auth/logout', { method:'POST', credentials:'include' });
+        window.location.href = 'login.html';
+    }
+
+    // ── Formato fecha ─────────────────────────────────
+    function formatFecha(f) {
+        return new Date(f).toLocaleDateString('es-CO', { day:'numeric', month:'long', year:'numeric' });
+    }
+
+    // ── Toast ─────────────────────────────────────────
+    function mostrarToast(msg, error=false, success=false) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className   = 'toast' + (error ? ' error' : success ? ' success' : '');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    init();
+</script>
+</body>
+</html>
