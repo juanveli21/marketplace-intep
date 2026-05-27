@@ -10,9 +10,12 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
     cloudinary,
-    params: {
-        folder: 'marketplace-intep',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
+    params: async (req, file) => {
+        return {
+            folder: 'marketplace-intep',
+            allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+            resource_type: 'image'
+        };
     }
 });
 
